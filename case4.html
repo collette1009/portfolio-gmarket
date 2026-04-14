@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Case 4. AI 기반 일일 자금집행 리포트 자동화 | 오희은 포트폴리오</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --white: #FFFFFF; --bg-soft: #F7F7F8; --bg-card: #F3F3F4;
+      --border: #E5E5E6; --text-1: #141416; --text-2: #50505A; --text-3: #909098;
+      --charcoal: #282D32; --charcoal-2: #1A1E21; --charcoal-a: rgba(40,45,50,0.07);
+      --sh-md: 0 4px 20px rgba(0,0,0,0.09); --r: 10px; --r-sm: 6px;
+      --ease: cubic-bezier(.4,0,.2,1); --t: 0.22s;
+    }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; color: var(--text-1); background: var(--white); -webkit-font-smoothing: antialiased; line-height: 1.7; }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 0 28px; }
+    .hr { width: 100%; height: 1px; background: var(--border); }
+    header { position: sticky; top: 0; z-index: 200; background: rgba(255,255,255,0.88); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid transparent; transition: border-color var(--t) var(--ease); }
+    header.on { border-bottom-color: var(--border); }
+    .h-inner { max-width: 980px; margin: 0 auto; padding: 0 28px; height: 62px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-size: 16px; font-weight: 800; color: var(--charcoal); text-decoration: none; letter-spacing: -0.02em; }
+    nav { display: flex; gap: 30px; }
+    nav a { font-size: 14px; font-weight: 500; color: var(--text-2); text-decoration: none; transition: color var(--t); }
+    nav a:hover { color: var(--charcoal); }
+    .nav-toggle { display: none; width: 36px; height: 36px; border: none; background: none; cursor: pointer; flex-direction: column; align-items: center; justify-content: center; gap: 5px; }
+    .nav-toggle span { display: block; width: 20px; height: 2px; background: var(--charcoal); border-radius: 2px; }
+    .case-hero { padding: 72px 0 56px; border-bottom: 1px solid var(--border); }
+    .case-hero-nav { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-2); text-decoration: none; margin-bottom: 32px; transition: color var(--t); }
+    .case-hero-nav:hover { color: var(--charcoal); }
+    .case-hero-nav svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .case-hero-title { font-size: clamp(26px, 4vw, 36px); font-weight: 800; letter-spacing: -0.03em; color: var(--charcoal); line-height: 1.2; margin-bottom: 20px; max-width: 720px; }
+    .case-hero-summary { font-size: 16px; color: var(--text-2); line-height: 1.85; max-width: 720px; padding: 20px 24px; background: var(--bg-soft); border-left: 3px solid var(--charcoal); border-radius: var(--r-sm); margin-bottom: 24px; }
+    .case-hero-meta { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 28px; }
+    .meta-chip { background: var(--charcoal-a); padding: 6px 14px; border-radius: 100px; font-size: 12px; font-weight: 600; color: var(--charcoal); }
+    .sec { padding: 60px 0; }
+    .sec-alt { background: var(--bg-soft); }
+    .sec-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); margin-bottom: 10px; }
+    .sec-title { font-size: clamp(22px, 3vw, 28px); font-weight: 700; letter-spacing: -0.025em; color: var(--charcoal); line-height: 1.3; margin-bottom: 32px; }
+    .problem-list { display: flex; flex-direction: column; gap: 16px; }
+    .problem-item { padding: 22px 26px; background: var(--white); border: 1.5px solid var(--border); border-radius: var(--r); font-size: 15px; color: var(--text-2); line-height: 1.8; }
+    .problem-item strong { color: var(--text-1); font-weight: 600; }
+    .problem-item .problem-title { font-size: 14px; font-weight: 700; color: var(--text-1); margin-bottom: 6px; }
+    .did-list { display: flex; flex-direction: column; gap: 16px; }
+    .did-item { padding: 26px 28px; background: var(--white); border: 1.5px solid var(--border); border-radius: var(--r); }
+    .did-number { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--charcoal); margin-bottom: 10px; background: var(--charcoal-a); padding: 3px 12px; border-radius: 6px; }
+    .did-title { font-size: 16px; font-weight: 700; color: var(--text-1); margin-bottom: 8px; letter-spacing: -0.01em; }
+    .did-desc { font-size: 15px; color: var(--text-2); line-height: 1.8; }
+    .did-desc strong { color: var(--text-1); font-weight: 600; }
+    .outcome-list { display: flex; flex-direction: column; gap: 14px; }
+    .outcome-item { display: flex; align-items: flex-start; gap: 12px; font-size: 15px; color: var(--text-2); line-height: 1.8; }
+    .outcome-item::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--charcoal); flex-shrink: 0; margin-top: 10px; }
+    .outcome-item strong { color: var(--text-1); font-weight: 600; }
+    .metric-box { padding: 24px 28px; background: var(--charcoal); border-radius: var(--r); margin-top: 24px; }
+    .metric-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.6); margin-bottom: 8px; }
+    .metric-value { font-size: 28px; font-weight: 800; color: var(--white); letter-spacing: -0.03em; line-height: 1.2; }
+    .metric-sub { font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 6px; }
+    .evidence-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .evidence-grid.single { grid-template-columns: 1fr; }
+    .evidence-item { display: flex; flex-direction: column; gap: 12px; }
+    .evidence-label { font-size: 13px; font-weight: 700; color: var(--text-1); }
+    .evidence-image { background: var(--bg-card); border: 1.5px solid var(--border); border-radius: var(--r); min-height: 200px; display: flex; align-items: center; justify-content: center; overflow: hidden; color: var(--text-3); font-size: 14px; text-align: center; }
+    .evidence-image img { width: 100%; height: auto; display: block; border-radius: var(--r); }
+    .evidence-desc { font-size: 14px; color: var(--text-2); line-height: 1.8; }
+    .insight-list { display: flex; flex-direction: column; gap: 16px; }
+    .insight-item { display: flex; gap: 16px; padding: 22px 24px; background: var(--white); border: 1.5px solid var(--border); border-radius: var(--r); align-items: flex-start; }
+    .insight-num { display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 50%; background: var(--charcoal-a); font-size: 13px; font-weight: 700; color: var(--charcoal); flex-shrink: 0; }
+    .insight-text { font-size: 15px; color: var(--text-2); line-height: 1.85; padding-top: 4px; }
+    .insight-text strong { color: var(--text-1); font-weight: 600; }
+    .tags-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tag { font-size: 12px; font-weight: 600; color: var(--charcoal); background: var(--white); padding: 5px 14px; border-radius: 100px; border: 1px solid var(--border); }
+    footer { padding: 60px 0; border-top: 1px solid var(--border); }
+    .footer-grid { display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; }
+    .footer-name { font-size: 22px; font-weight: 800; color: var(--charcoal); letter-spacing: -0.03em; margin-bottom: 4px; }
+    .footer-sub { font-size: 14px; color: var(--text-3); }
+    .footer-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 13px 26px; font-size: 14px; font-weight: 600; border-radius: var(--r-sm); text-decoration: none; transition: all var(--t) var(--ease); }
+    .btn-dark { background: var(--charcoal); color: var(--white); border: 1.5px solid var(--charcoal); }
+    .btn-outline { background: transparent; color: var(--charcoal); border: 1.5px solid var(--border); }
+    .fi { opacity: 0; transform: translateY(20px); transition: opacity 0.55s var(--ease), transform 0.55s var(--ease); }
+    .fi.show { opacity: 1; transform: none; }
+  </style>
+</head>
+<body>
+  <header id="hd">
+    <div class="h-inner">
+      <a href="index.html" class="logo">오희은</a>
+      <nav id="nav">
+        <a href="index.html#about">소개</a>
+        <a href="index.html#cases">케이스 스터디</a>
+      </nav>
+      <button class="nav-toggle" id="navToggle" aria-label="메뉴"><span></span><span></span><span></span></button>
+    </div>
+  </header>
+  <div class="wrap">
+    <section class="case-hero">
+      <a href="index.html#cases" class="case-hero-nav">
+        <svg viewBox="0 0 14 14" fill="none"><path d="M11.5 7H2.5M5 3.5L1.5 7L5 10.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        포트폴리오로 돌아가기
+      </a>
+      <h1 class="case-hero-title">AI 기반 일일 자금집행 리포트 자동화</h1>
+      <div class="case-hero-summary">재무 공백 상황에서 경영진이 매일 스프레드시트를 직접 뒤지며 집행 우선순위를 판단하던 구조를, <strong>AI가 자동으로 필수·일반을 분류해 매일 아침 발송</strong>하는 시스템으로 전환한 사례입니다. 문제를 먼저 발견해 시스템을 구축하고, 경영진에게 샘플로 제안한 뒤 승인받아 정식 운영에 들어갔습니다.</div>
+      <div class="case-hero-meta">
+        <span class="meta-chip">#AI 자동화</span>
+        <span class="meta-chip">#경영진 의사결정 지원</span>
+        <span class="meta-chip">#선제적 제안</span>
+      </div>
+    </section>
+  </div>
+  <section class="sec">
+    <div class="wrap">
+      <h2 class="sec-title">수백 건이 요청 순서대로 쌓인 시트에서, 오늘 처리해야 할 것을 직접 찾아야 했습니다</h2>
+      <div class="problem-list fi">
+        <div class="problem-item"><div class="problem-title">구조의 문제</div>자금집행목록 시트는 여러 부서가 요청 순서대로 입력하는 구조. 수백 행이 뒤섞여 있고, 각 행마다 집행 가능 일자가 달라 <strong>"오늘 처리해야 하는 건"을 찾으려면 전체를 스크롤해야 하는 구조</strong></div>
+        <div class="problem-item"><div class="problem-title">재무 공백 + 경영진 직접 판단</div>재무팀 공백으로 자금집행 판단이 경영진에게 직접 귀속된 상황. 필수 지급과 일반 지급이 부서·날짜별로 뒤섞인 채 나열되어 있어 <strong>정리 작업이 판단보다 먼저 필요한 구조</strong></div>
+        <div class="problem-item"><div class="problem-title">매일 반복되는 비효율</div>당일 집행 가능 건만 필터링하고, 금액·성격별로 구분해 우선순위를 잡는 작업을 매일 수동으로 반복. 7억+ 규모의 집행 판단이 <strong>시트 정리에서 시작되는 구조</strong></div>
+      </div>
+    </div>
+  </section>
+  <section class="sec sec-alt">
+    <div class="wrap">
+      <h2 class="sec-title">먼저 발견하고 만들어 제안했습니다</h2>
+      <div class="did-list fi">
+        <div class="did-item">
+          <div class="did-number">1. 문제 정의</div>
+          <div class="did-title">판단 부담의 원인을 구조로 파악</div>
+          <div class="did-desc">경영진이 시트를 직접 확인하는 구조 자체가 문제라고 판단했습니다. <strong>정보가 정리되지 않아서</strong> 판단이 느려지고 있었습니다. 데이터는 이미 시트에 있었고, 분류 기준만 있으면 자동화할 수 있었습니다.</div>
+        </div>
+        <div class="did-item">
+          <div class="did-number">2. 분류 기준 설계</div>
+          <div class="did-title">필수 / 일반 2단계 우선순위 체계</div>
+          <div class="did-desc">집행 건을 <strong>필수(계약 기한·연체 리스크·거래처 관계 유지에 직결되는 건)</strong>와 <strong>일반(유연하게 조정 가능한 건)</strong>으로 분류하는 기준을 설계했습니다.</div>
+        </div>
+        <div class="did-item">
+          <div class="did-number">3. 자동화 구현</div>
+          <div class="did-title">Claude 기반 Slack 자동 발송 시스템</div>
+          <div class="did-desc">Google Sheets에서 당일 집행 예정 건을 자동으로 추출하고, Claude가 필수·일반으로 분류한 뒤 Slack에 자동 발송하는 시스템을 직접 구현했습니다. CEO에게 샘플과 함께 제안해 승인을 받았고, 이후 <strong>매일 아침 8시 30분 전후 경영진에게 자동 발송</strong>되는 구조로 정식 운영에 들어갔습니다.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="sec">
+    <div class="wrap">
+      <h2 class="sec-title">매일 아침 8시 30분 전후, 경영진이 시트를 열지 않아도 됩니다</h2>
+      <div class="outcome-list fi">
+        <div class="outcome-item"><strong>당일 집행 전체 현황과 우선순위를 즉시 파악</strong> 가능</div>
+        <div class="outcome-item">필수·일반 분류로 "오늘 무조건 처리해야 하는 것"을 <strong>별도 판단 없이 확인</strong></div>
+        <div class="outcome-item">7억+ 규모 집행현황이 매일 아침 포맷화된 형태로 자동 전달</div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:16px;margin-top:24px;" class="fi">
+        <div class="metric-box" style="flex:1;min-width:200px;"><div class="metric-label">일일 자동 처리 규모</div><div class="metric-value">7억+</div><div class="metric-sub">매일 아침 8시 30분 전후 자동 분류·발송</div></div>
+        <div class="metric-box" style="flex:1;min-width:200px;"><div class="metric-label">구현 방식</div><div class="metric-value">선제적 제안</div><div class="metric-sub">요청 없이 먼저 발견하고 만들어 제안했습니다</div></div>
+      </div>
+    </div>
+  </section>
+  <section class="sec sec-alt">
+    <div class="wrap">
+      <h2 class="sec-title">실제 발송된 리포트</h2>
+      <div class="evidence-grid single fi">
+        <div class="evidence-item">
+          <div class="evidence-label">실제 Slack 자동 발송 리포트 (2026.04.10)</div>
+          <div class="evidence-image"><img src="img/case4_slack.png" alt="AI 자금집행 리포트 Slack 메시지"></div>
+          <div class="evidence-desc">Google Sheets에서 당일 건을 추출해 필수·일반으로 자동 분류한 뒤 Slack으로 발송된 실제 리포트입니다.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="sec">
+    <div class="wrap">
+      <div class="sec-eyebrow">Insight</div>
+      <h2 class="sec-title">AI는 효율화 도구가 아니라 판단 구조의 일부입니다</h2>
+      <div class="insight-list fi">
+        <div class="insight-item"><div class="insight-num">1</div><div class="insight-text"><strong>문제는 데이터가 없는 게 아니었습니다.</strong> 정보는 이미 시트에 있었고, 분류되지 않아 판단이 느려지고 있었습니다.</div></div>
+        <div class="insight-item"><div class="insight-num">2</div><div class="insight-text"><strong>구조가 판단보다 먼저입니다.</strong> 필수·일반 분류 기준이 없었다면 자동화해도 경영진이 다시 판단해야 했습니다.</div></div>
+        <div class="insight-item"><div class="insight-num">3</div><div class="insight-text"><strong>요청을 기다리지 않고 먼저 움직이는 것이 운영의 가치입니다.</strong> 구조적 비효율을 먼저 발견하고 실행까지 연결한 것이 이 케이스의 핵심입니다.</div></div>
+      </div>
+      <div class="tags-row" style="margin-top:32px;"><span class="tag">AI 자동화</span><span class="tag">Google Sheets 연동</span><span class="tag">Slack 자동 발송</span><span class="tag">경영진 의사결정 지원</span><span class="tag">선제적 제안</span></div>
+    </div>
+  </section>
+  <footer>
+    <div class="wrap">
+      <div class="footer-grid">
+        <div><div class="footer-name">오희은</div><div class="footer-sub">Seller Growth Manager — G마켓 지원</div></div>
+        <div class="footer-actions"><a href="index.html" class="btn btn-outline">포트폴리오 홈</a></div>
+      </div>
+    </div>
+  </footer>
+  <script>
+    const hd = document.getElementById('hd');
+    window.addEventListener('scroll', () => { hd.classList.toggle('on', window.scrollY > 10); });
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('show'); obs.unobserve(e.target); } });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.fi').forEach(el => obs.observe(el));
+  </script>
+</body>
+                                               </html>
